@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="শ্রী Dashboard" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <link rel="manifest" href="manifest.json" />
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <title>শ্রীবিজয়ভূতির্ধ্রুবানীতি — AI Fiesta Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --accent: #fbbf24;
+            --bg: #eef1f5;
+            --card: #ffffff;
+            --text: #1a1a2e;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --green: #16a34a;
+            --red: #dc2626;
+            --blue: #1e40af;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-top: calc(14px + var(--safe-top));
+            padding-bottom: calc(70px + var(--safe-bottom));
+            padding-left: 14px;
+            padding-right: 14px;
+            overscroll-behavior: none;
+        }
+
+        .container { max-width: 500px; margin: 0 auto; }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            padding: 16px 18px;
+            border-radius: 16px;
+            margin-bottom: 14px;
+        }
+        .header h1 { font-size: 1.15rem; font-weight: 700; }
+        .header h1 i { color: var(--accent); margin-right: 8px; }
+        .header .sub { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+        .hdr-row {
+            display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap;
+        }
+        .hdr-stat { text-align: center; flex: 1; }
+        .hdr-stat .l { font-size: 0.55rem; text-transform: uppercase; opacity: 0.6; letter-spacing: 0.8px; }
+        .hdr-stat .v { font-size: 1rem; font-weight: 700; color: var(--accent); }
+
+        /* ── BOTTOM TAB BAR ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            padding-bottom: var(--safe-bottom);
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        .bottom-nav button {
+            flex: 1; border: none; background: transparent;
+            padding: 10px 4px 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            cursor: pointer; transition: all 0.2s; color: var(--muted); font-family: inherit;
+        }
+        .bottom-nav button i { font-size: 1.1rem; }
+        .bottom-nav button span { font-size: 0.55rem; font-weight: 600; }
+        .bottom-nav button.active { color: var(--primary); }
+        .bottom-nav button.active i {
+            background: var(--accent); color: var(--primary);
+            padding: 5px 12px; border-radius: 20px; font-size: 0.95rem;
+        }
+
+        /* ── TAB CONTENT ── */
+        .tab { display: none; animation: fadeIn 0.2s ease; }
+        .tab.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--card); border-radius: 14px;
+            padding: 16px; margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .card-title {
+            font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .card-title i { color: var(--accent); }
+
+        /* ── QUOTE BANNER ── */
+        .quote {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-left: 4px solid var(--accent);
+            padding: 10px 14px; border-radius: 10px;
+            margin-bottom: 12px; font-size: 0.75rem; line-height: 1.6;
+        }
+
+        /* ── STAT GRID ── */
+        .sgrid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
+        }
+        .scard {
+            background: #f8fafc; border-radius: 10px; padding: 10px 8px; text-align: center;
+        }
+        .scard .sl { font-size: 0.55rem; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+        .scard .sv { font-size: 1rem; font-weight: 800; margin-top: 2px; }
+        .scard .sv.pos { color: var(--green); }
+        .scard .sv.neg { color: var(--red); }
+
+        /* ── FORM ── */
+        .form-group { margin-bottom: 10px; }
+        .form-group label {
+            display: block; font-size: 0.65rem; font-weight: 600;
+            color: var(--muted); text-transform: uppercase; margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%; font-family: inherit; font-size: 0.85rem;
+            padding: 10px 12px; border: 1.5px solid var(--border);
+            border-radius: 10px; background: #f8fafc;
+            transition: border 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(251,191,36,0.15);
+            background: #fff;
+        }
+        .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+        .btn {
+            width: 100%; padding: 12px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 0.88rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:active { background: #16213e; transform: scale(0.98); }
+        .btn-accent { background: var(--accent); color: var(--primary); }
+        .btn-accent:active { background: #f59e0b; transform: scale(0.98); }
+        .btn-sm {
+            width: auto; padding: 4px 10px; font-size: 0.7rem; border-radius: 7px;
+            background: #fee2e2; color: var(--red); border: none; cursor: pointer;
+        }
+
+        /* ── TABLE ── */
+        .twrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        table th {
+            background: #f8fafc; padding: 8px 6px; text-align: left;
+            font-weight: 600; color: var(--muted); border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 12px;
+            font-size: 0.62rem; font-weight: 600;
+        }
+        .bg-green { background: #dcfce7; color: #166534; }
+        .bg-red { background: #fee2e2; color: #991b1b; }
+        .bg-blue { background: #dbeafe; color: var(--blue); }
+        .bg-yellow { background: #fef9c3; color: #854d0e; }
+        .bg-purple { background: #f3e8ff; color: #6b21a8; }
+
+        /* ── MATRIX ── */
+        .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .mquad { background: #f8fafc; border-radius: 12px; padding: 10px; }
+        .mquad h5 { font-size: 0.7rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+        .mquad .ti {
+            background: #fff; padding: 5px 8px; border-radius: 6px; margin-bottom: 3px;
+            font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .q1 { border-top: 3px solid #ef4444; }
+        .q2 { border-top: 3px solid #fbbf24; }
+        .q3 { border-top: 3px solid #3b82f6; }
+        .q4 { border-top: 3px solid #94a3b8; }
+
+        /* ── WISDOM ── */
+        .wcards { display: flex; flex-direction: column; gap: 10px; }
+        .wcard {
+            background: #f8fafc; border-radius: 12px;
+            padding: 12px 14px; border-left: 3px solid var(--accent);
+        }
+        .wcard .wt { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+        .wcard .wc { font-size: 0.78rem; line-height: 1.5; }
+        [contenteditable="true"]:focus { outline: 2px solid var(--accent); background: #fffbeb; border-radius: 6px; }
+
+        /* ── EXPORT BANNER ── */
+        .export-bar {
+            background: #f0fdf4; border: 1px solid #bbf7d0;
+            border-radius: 10px; padding: 10px 14px;
+            font-size: 0.75rem; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        ::-webkit-scrollbar { height: 4px; width: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="header">
+        <h1><i class="fas fa-spa"></i> শ্রীবিজয়ভূতির্ধ্রুবানীতি</h1>
+        <div class="sub">AI Fiesta Personal Dashboard · শ্রেয়াণ স্বধর্ম বিগুণ পরধর্মাৎ স্বানুষ্ঠিতাৎ</div>
+        <div class="hdr-row">
+            <div class="hdr-stat"><div class="l">Age</div><div class="v" id="ageDisp">41Y 4M</div></div>
+            <div class="hdr-stat"><div class="l">Today</div><div class="v" id="dayDisp">—</div></div>
+            <div class="hdr-stat"><div class="l">Net P&L</div><div class="v" id="pnlDisp">₹0</div></div>
+        </div>
+    </div>
+
+    <!-- ════════════ TAB CONTENTS ════════════ -->
+
+    <!-- TAB: SUMMARY -->
+    <div class="tab active" id="tab-summary">
+        <div class="quote">
+            <strong>বুদ্ধের্ভেদং ধৃতেশ্চৈব গুণতস্ত্রিবিধং শৃণু ।</strong>
+            প্রোচ্যমানমশেষেন পৃথকত্বেন ধনঞ্জয় ।। ১৮।২৯
+            <em style="display:block;margin-top:4px;color:#92400e;">অসক্তবুদ্ধি · সর্বত্র জিতাত্মা · বিগতস্পৃহ</em>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-gauge-high"></i> Key Metrics</div>
+            <div class="sgrid">
+                <div class="scard"><div class="sl">Nifty 50</div><div class="sv" id="sNifty" contenteditable="true">22798</div></div>
+                <div class="scard"><div class="sl">VIX</div><div class="sv" id="sVix" contenteditable="true">26.47</div></div>
+                <div class="scard"><div class="sl">Range</div><div class="sv" style="font-size:0.8rem;" id="sRange" contenteditable="true">24.14</div></div>
+                <div class="scard"><div class="sl">Week P&L</div><div class="sv" id="sWPnL">₹0</div></div>
+                <div class="scard"><div class="sl">Trades</div><div class="sv" id="sTradeC">0</div></div>
+                <div class="scard"><div class="sl">Sugar</div><div class="sv" id="sSugar" style="font-size:0.8rem;">—</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-bullseye"></i> Mission শ্রী</div>
+            <div contenteditable="true" style="font-size:0.8rem;line-height:1.7;background:#f8fafc;padding:10px;border-radius:8px;">
+• শরীরিক, মানসিক, আত্মিক স্বাস্থ্য
+• ধন-অর্থ সম্পদ, প্রতিস্ঠা
+• Financial Independence: No Job
+• ভূতি — Power & Respect socially, Rich - Financially Independent, Happy - Enlightened
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-shield-halved"></i> Strengths & Weaknesses</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.78rem;">
+                <div>
+                    <div style="font-size:0.6rem;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:4px;">✓ Strengths</div>
+                    <div contenteditable="true" style="background:#f0fdf4;padding:8px;border-radius:8px;min-height:80px;">
+• Calculative
+• Calm & Polite
+• Good Listener
+• Emotional Intelligence
+• Strong with practice
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:0.6rem;font-weight:700;color:#dc2626;text-transform:uppercase;margin-bottom:4px;">✗ Weaknesses</div>
+                    <div contenteditable="true" style="background:#fef2f2;padding:8px;border-radius:8px;min-height:80px;">
+• Impulsive / Emotional
+• Lazyness
+• Impatience
+• Long run dedication problem
+• Diabetes
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-gem"></i> Core Principles</div>
+            <div class="wcards">
+                <div class="wcard"><div class="wt">🛠 Tools</div><div class="wc">ত্যাগ (দেহ), সংযম (ইন্দ্রিয় ও মন), সত্য (বুদ্ধি), ব্রহ্মচর্যম (আত্মা)</div></div>
+                <div class="wcard"><div class="wt">📈 Trading</div><div class="wc">PEJA/SEJA/PNEJA = main causes of loss. Test-Trend-Trade, not emotions.</div></div>
+                <div class="wcard"><div class="wt">🏆 Success Formula</div><div class="wc">x + y + z = Success · Avoid not-urgent not-important tasks.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: DAILY LOG -->
+    <div class="tab" id="tab-daily">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-clock"></i> Add Daily Log</div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Date</label><input type="date" id="dlDate" /></div>
+                <div class="form-group"><label>Day</label><input type="text" id="dlDay" placeholder="Friday" /></div>
+            </div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Time Slot</label>
+                    <select id="dlSlot">
+                        <option value="5:00-6:30">5:00–6:30</option>
+                        <option value="6:30-8:00">6:30–8:00</option>
+                        <option value="8:00-9:30">8:00–9:30</option>
+                        <option value="9:30-11:00">9:30–11:00</option>
+                        <option value="11:00-12:30">11:00–12:30</option>
+                        <option value="12:30-2:00">12:30–2:00</option>
+                        <option value="2:00-3:30">2:00–3:30</option>
+                        <option value="3:30-5:00">3:30–5:00</option>
+                        <option value="6:30-8:00">6:30–8:00</option>
+                        <option value="8:00-9:30">8:00–9:30</option>
+                        <option value="9:30-11:00">9:30–11:00</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Category</label>
+                    <select id="dlCat">
+                        <option value="ODM">ODM/Meditation</option>
+                        <option value="Health">Health/Exercise</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Study">Study</option>
+                        <option value="Family">Family/Kid</option>
+                        <option value="Trading">Trading</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group"><label>Activity Description</label>
+                <input type="text" id="dlActivity" placeholder="Morning Walk 30 min, ODM 30 min..." />
+            </div>
+            <div class="form-group"><label>Amount (₹)</label>
+                <input type="number" id="dlAmt" step="0.01" placeholder="0.00" />
+            </div>
+            <button class="btn btn-primary" onclick="addDL()"><i class="fas fa-plus"></i> Add Log Entry</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-list"></i> Daily Log Entries</div>
+            <div class="twrap">
+                <table>
+                    <thead><tr><th>Date</th><th>Slot</th><th>Activity</th><th>Cat</th><th>₹</th><th></th></tr></thead>
+                    <tbody id="dlBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: FINANCE -->
+    <div class="tab" id="tab-finance">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-wallet"></i> Add Expense / Income</div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Date</label><input type="date" id="eiDate" /></div>
+                <div class="form-group"><label>Type</label>
+                    <select id="eiType">
+                        <option value="Expense">Expense</option>
+                        <option value="Income">Income</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group"><label>Description</label>
+                <input type="text" id="eiDesc" placeholder="e.g. Groceries, Salary, Trading..." />
+            </div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Category</label>
+                    <select id="eiCat">
+                        <option value="Food">Food</option>
+                        <option value="Health">Health</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Trading">Trading</option>
+                        <option value="Education">Education</option>
+                        <option value="Family">Family</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Amount (₹)</label>
+                    <input type="number" id="eiAmt" step="0.01" placeholder="0.00" />
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addEI()"><i class="fas fa-plus"></i> Add Entry</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-pie"></i> Summary</div>
+            <div class="sgrid">
+                <div class="scard"><div class="sl">Expenses</div><div class="sv neg">₹<span id="totExp">0</span></div></div>
+                <div class="scard"><div class="sl">Income</div><div class="sv pos">₹<span id="totInc">0</span></div></div>
+                <div class="scard"><div class="sl">Net</div><div class="sv" id="netBalC">₹0</div></div>
+            </div>
+
+            <div class="twrap">
+                <table>
+                    <thead><tr><th>Date</th><th>Type</th><th>Desc</th><th>₹</th><th></th></tr></thead>
+                    <tbody id="eiBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: TRADING -->
+    <div class="tab" id="tab-trading">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-line"></i> Market Overview</div>
+            <div class="sgrid">
+                <div class="scard"><div class="sl">Nifty</div><div class="sv" contenteditable="true" id="trNifty">22798</div></div>
+                <div class="scard"><div class="sl">VIX</div><div class="sv" contenteditable="true" id="trVix">26.47</div></div>
+                <div class="scard"><div class="sl">Range</div><div class="sv" style="font-size:0.8rem;" contenteditable="true" id="trRange">24.14</div></div>
+                <div class="scard"><div class="sl">Gross P&L</div><div class="sv" id="trGross">₹0</div></div>
+                <div class="scard"><div class="sl">Net P&L</div><div class="sv" id="trNet">₹0</div></div>
+                <div class="scard"><div class="sl">Trades</div><div class="sv" id="trCnt">0</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-plus-circle"></i> Add Trade</div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Date</label><input type="date" id="trDate" /></div>
+                <div class="form-group"><label>Type</label>
+                    <select id="trType">
+                        <option value="CE">CE (Call)</option>
+                        <option value="PE">PE (Put)</option>
+                        <option value="FUT">Futures</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group"><label>Instrument</label>
+                <input type="text" id="trInst" placeholder="e.g. BANKNIFTY, NIFTY..." />
+            </div>
+
+            <div class="form-row3">
+                <div class="form-group"><label>Qty</label><input type="number" id="trQty" value="1" /></div>
+                <div class="form-group"><label>P&L (₹)</label><input type="number" id="trPnL" step="0.01" placeholder="0" /></div>
+                <div class="form-group"><label>Charges</label><input type="number" id="trChg" step="0.01" value="0" /></div>
+            </div>
+            <button class="btn btn-primary" onclick="addTrade()"><i class="fas fa-plus"></i> Add Trade</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-list"></i> Trade History</div>
+            <div class="twrap">
+                <table>
+                    <thead><tr><th>Date</th><th>Instr.</th><th>Type</th><th>P&L</th><th>Net</th><th></th></tr></thead>
+                    <tbody id="trBody"></tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:10px;background:#f8fafc;padding:10px;border-radius:8px;font-size:0.75rem;">
+                <strong>📋 Watchlist:</strong><br/>
+                Reliance, ONGC, BPCL | Tata Motors, M&M, Maruti | Asian Paints | IndiGo | HDFC Bank, ICICI Bank, SBI | TCS, Infosys, HCL
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: TASKS -->
+    <div class="tab" id="tab-tasks">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-plus-circle"></i> Add Task</div>
+            <div class="form-group"><label>Task Description</label>
+                <input type="text" id="taskTxt" placeholder="What needs to be done?" />
+            </div>
+            <div class="form-group"><label>Priority Quadrant</label>
+                <select id="taskQ">
+                    <option value="1">🔴 Urgent & Important (10:00–11:30)</option>
+                    <option value="2">🟡 Urgent & Not Important (2:00–3:30)</option>
+                    <option value="3">🔵 Not Urgent & Important (6:30–11:00)</option>
+                    <option value="4">⚪ Not Urgent & Not Important</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-th"></i> Eisenhower Matrix</div>
+            <div class="mgrid">
+                <div class="mquad q1"><h5><i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> Urgent+Imp</h5><div id="quad1"></div></div>
+                <div class="mquad q2"><h5><i class="fas fa-hourglass" style="color:#fbbf24;"></i> Urgent+NotImp</h5><div id="quad2"></div></div>
+                <div class="mquad q3"><h5><i class="fas fa-star" style="color:#3b82f6;"></i> Imp+NotUrgent</h5><div id="quad3"></div></div>
+                <div class="mquad q4"><h5><i class="fas fa-trash" style="color:#94a3b8;"></i> Neither</h5><div id="quad4"></div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-flag"></i> Goals & Projects</div>
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:0.78rem;">
+                <div style="background:#f0fdf4;padding:10px;border-radius:8px;border-left:3px solid #16a34a;">
+                    <div style="font-size:0.6rem;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:4px;">Aishani's Goals</div>
+                    <div contenteditable="true">• Financial Independence<br/>• Health & Wellness<br/>• Professional Growth<br/>• Aishani's Progress</div>
+                </div>
+                <div style="background:#f0f9ff;padding:10px;border-radius:8px;border-left:3px solid #3b82f6;">
+                    <div style="font-size:0.6rem;font-weight:700;color:#3b82f6;text-transform:uppercase;margin-bottom:4px;">Action Steps</div>
+                    <div contenteditable="true">• Ask Tapan Mukherjee for 1 Katha land<br/>• OBC Certificate process<br/>• Suchand - poultry + Tractor<br/>• Brahmacharyam practice</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: HEALTH -->
+    <div class="tab" id="tab-health">
+        <div class="card">
+            <div class="card-title"><i class="fas fa-stethoscope"></i> Log Health Data</div>
+
+            <div class="form-row2">
+                <div class="form-group"><label>Date</label><input type="date" id="hDate" /></div>
+                <div class="form-group"><label>Sugar mg/dL</label><input type="number" id="hSugar" step="0.1" placeholder="120" /></div>
+            </div>
+
+            <div class="form-row3">
+                <div class="form-group"><label>Walk (min)</label><input type="number" id="hWalk" placeholder="30" /></div>
+                <div class="form-group"><label>ODM (min)</label><input type="number" id="hODM" placeholder="30" /></div>
+                <div class="form-group"><label>Sleep (hrs)</label><input type="number" id="hSleep" step="0.5" placeholder="7" /></div>
+            </div>
+
+            <div class="form-group"><label>Notes</label>
+                <input type="text" id="hNotes" placeholder="e.g. Semaglutide 0.25, Janumet 2 tablets..." />
+            </div>
+            <button class="btn btn-primary" onclick="addHealth()"><i class="fas fa-plus"></i> Log Health</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-list"></i> Health History</div>
+            <div class="twrap">
+                <table>
+                    <thead><tr><th>Date</th><th>Sugar</th><th>Walk</th><th>ODM</th><th>Sleep</th><th></th></tr></thead>
+                    <tbody id="hBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-calendar-check"></i> Daily Routine</div>
+            <div contenteditable="true" style="font-size:0.8rem;line-height:1.8;background:#f8fafc;padding:10px;border-radius:8px;">
+6:00–7:00 Yoga, Meditation & Sankalpa
+ODM: Prep of Daily struggle
+Morning Walk: 30 min
+Bath & Breakfast with Energy Drink, Salads, Raw Tulsi Tea
+ODM (2+2) / CleanD / Sleep 11pm (1+1)
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: WISDOM -->
+    <div class="tab" id="tab-wisdom">
+        <div class="quote" style="font-size:0.78rem;">
+            <strong>নৈস্কর্মসিদ্ধিং পরমাং সন্নাসেনাধিগচ্ছতি ।</strong><br/>
+            সিদ্ধিংপ্রাপ্ত যথাব্রহ্ম তথাপ্নোতি নিবোধমে ।<br/>
+            <em>Be sincere. Never repeat wrong works. Instead — wait, meditate, improve.</em>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-book-open"></i> Daily Reflections</div>
+            <div style="background:#fffbeb;border-left:3px solid #fbbf24;padding:12px;border-radius:8px;font-size:0.8rem;line-height:1.8;margin-bottom:10px;">
+                <strong>1️⃣</strong> আজ আমি কি আমার প্রকৃত স্বভাবের বিরুদ্ধে গিয়েছি?<br/>
+                <strong>2️⃣</strong> কোন কাজ আমাকে শান্ত করেছে?<br/>
+                <strong>3️⃣</strong> আমি কি ফলের জন্য কাজ করেছি, না কর্তব্যবোধে?
+            </div>
+
+            <div class="form-group"><label>My Reflection Today</label>
+                <textarea id="reflText" style="height:80px;" placeholder="Write your reflection..."></textarea>
+            </div>
+            <button class="btn btn-accent" onclick="addRefl()"><i class="fas fa-save"></i> Save Reflection</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-video"></i> 5-Min Learning</div>
+            <div class="form-group"><label>Topic / Link</label>
+                <input type="text" id="vidLink" placeholder="Topic or video URL..." />
+            </div>
+            <div class="form-group"><label>100-Word Summary</label>
+                <textarea id="vidSum" style="height:70px;" placeholder="What did you learn?"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="addVideo()"><i class="fas fa-plus"></i> Save Learning</button>
+
+            <div class="twrap" style="margin-top:10px;">
+                <table>
+                    <thead><tr><th>Date</th><th>Topic</th><th>Summary</th><th></th></tr></thead>
+                    <tbody id="vidBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-download"></i> Backup & Restore</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-accent" onclick="exportData()"><i class="fas fa-file-export"></i> Export All Data</button>
+                <div class="form-group"><label>Restore from Backup</label>
+                    <textarea id="restoreInput" style="height:60px;" placeholder="Paste exported JSON here..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="importData()"><i class="fas fa-file-import"></i> Restore Data</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-gem"></i> Wisdom Library</div>
+            <div class="wcards">
+                <div class="wcard"><div class="wt">🙏 Worship</div><div class="wc">প্রবৃত্তি > পরমব্রহ্ম · इश्वरपरं कृष्णा सत्चितनंदा विग्रह · Satsang with Givers</div></div>
+                <div class="wcard"><div class="wt">⚔️ 5 Enemies</div><div class="wc">কাম (Control=Dev, Not=Rakshasa) · ক্রোধ (damages in & out) · লোভ · মদ · দর্প</div></div>
+                <div class="wcard"><div class="wt">🎯 Trading Rule</div><div class="wc">Real Risk (Loss is guaranteed) & Respect the market · Reward · Recovery · No Overtrade</div></div>
+                <div class="wcard"><div class="wt">💡 Chanakya</div><div class="wc">Discipline > habit, Mindset, Slow but steady. Daily Support & Resistance marking.</div></div>
+                <div class="wcard"><div class="wt">🌟 Success Formula</div><div class="wc">সধর্ম (Mission) + স্বভাব (Passion) + সহজ (Profession) = Success · x + y + z = 🏆</div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══ BOTTOM NAV BAR ═══ -->
+<nav class="bottom-nav">
+    <button class="active" onclick="switchTab('tab-summary', this)"><i class="fas fa-home"></i><span>Summary</span></button>
+    <button onclick="switchTab('tab-daily', this)"><i class="fas fa-calendar-day"></i><span>Daily</span></button>
+    <button onclick="switchTab('tab-finance', this)"><i class="fas fa-wallet"></i><span>Finance</span></button>
+    <button onclick="switchTab('tab-trading', this)"><i class="fas fa-chart-line"></i><span>Trading</span></button>
+    <button onclick="switchTab('tab-tasks', this)"><i class="fas fa-tasks"></i><span>Tasks</span></button>
+    <button onclick="switchTab('tab-health', this)"><i class="fas fa-heartbeat"></i><span>Health</span></button>
+    <button onclick="switchTab('tab-wisdom', this)"><i class="fas fa-book"></i><span>Wisdom</span></button>
+</nav>
+
+<!-- SERVICE WORKER REGISTRATION -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
+</script>
+
+<script>
+// ════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    renderAll();
+}
+
+// ════════════════════════════════════════
+// LOCAL STORAGE HELPERS
+// ════════════════════════════════════════
+const get = k => JSON.parse(localStorage.getItem(k) || '[]');
+const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+// ════════════════════════════════════════
+// DAILY LOG
+// ════════════════════════════════════════
+function addDL() {
+    const date = document.getElementById('dlDate').value;
+    const day  = document.getElementById('dlDay').value;
+    const slot = document.getElementById('dlSlot').value;
+    const act  = document.getElementById('dlActivity').value.trim();
+    const cat  = document.getElementById('dlCat').value;
+    const amt  = parseFloat(document.getElementById('dlAmt').value) || 0;
+    if (!date || !act) { alert('Please enter date and activity.'); return; }
+    const data = get('daily');
+    data.unshift({ id: Date.now(), date, day, slot, act, cat, amt });
+    set('daily', data);
+    ['dlDate','dlDay','dlActivity','dlAmt'].forEach(id => document.getElementById(id).value = '');
+    renderDL();
+}
+function delDL(id) { set('daily', get('daily').filter(d => d.id !== id)); renderDL(); }
+function renderDL() {
+    const data = get('daily');
+    document.getElementById('dlBody').innerHTML = data.map(d => `
+        <tr>
+            <td>${d.date}</td>
+            <td>${d.slot}</td>
+            <td>${d.act}</td>
+            <td><span class="badge bg-blue">${d.cat}</span></td>
+            <td>₹${d.amt}</td>
+            <td><button class="btn-sm" onclick="delDL(${d.id})">✕</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:16px;">No entries yet</td></tr>';
+}
+
+// ════════════════════════════════════════
+// EXPENSES & INCOME
+// ════════════════════════════════════════
+function addEI() {
+    const date = document.getElementById('eiDate').value;
+    const type = document.getElementById('eiType').value;
+    const desc = document.getElementById('eiDesc').value.trim();
+    const cat  = document.getElementById('eiCat').value;
+    const amt  = parseFloat(document.getElementById('eiAmt').value) || 0;
+    if (!date || !desc || !amt) { alert('Please fill all fields.'); return; }
+    const data = get('finance');
+    data.unshift({ id: Date.now(), date, type, desc, cat, amt });
+    set('finance', data);
+    ['eiDate','eiDesc','eiAmt'].forEach(id => document.getElementById(id).value = '');
+    renderEI();
+}
+function delEI(id) { set('finance', get('finance').filter(f => f.id !== id)); renderEI(); }
+function renderEI() {
+    const data = get('finance');
+    const exp  = data.filter(f => f.type === 'Expense').reduce((s,f) => s+f.amt, 0);
+    const inc  = data.filter(f => f.type === 'Income').reduce((s,f) => s+f.amt, 0);
+    document.getElementById('totExp').textContent = exp.toFixed(2);
+    document.getElementById('totInc').textContent = inc.toFixed(2);
+    const net = inc - exp;
+    const nb = document.getElementById('netBalC');
+    nb.textContent = '₹' + net.toFixed(2);
+    nb.style.color = net >= 0 ? '#16a34a' : '#dc2626';
+    document.getElementById('eiBody').innerHTML = data.map(f => `
+        <tr>
+            <td>${f.date}</td>
+            <td><span class="badge ${f.type==='Expense'?'bg-red':'bg-green'}">${f.type}</span></td>
+            <td>${f.desc}<br/><span style="font-size:0.6rem;color:#94a3b8;">${f.cat}</span></td>
+            <td style="font-weight:700;color:${f.type==='Expense'?'#dc2626':'#16a34a'};">₹${f.amt.toFixed(2)}</td>
+            <td><button class="btn-sm" onclick="delEI(${f.id})">✕</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:16px;">No entries yet</td></tr>';
+}
+
+// ════════════════════════════════════════
+// TRADING
+// ════════════════════════════════════════
+function addTrade() {
+    const date = document.getElementById('trDate').value;
+    const inst = document.getElementById('trInst').value.trim();
+    const type = document.getElementById('trType').value;
+    const qty  = parseInt(document.getElementById('trQty').value) || 1;
+    const pnl  = parseFloat(document.getElementById('trPnL').value) || 0;
+    const chg  = parseFloat(document.getElementById('trChg').value) || 0;
+    if (!date || !inst) { alert('Please enter date and instrument.'); return; }
+    const data = get('trading');
+    data.unshift({ id: Date.now(), date, inst, type, qty, pnl, chg });
+    set('trading', data);
+    ['trDate','trInst','trPnL'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('trChg').value = '0';
+    renderTR();
+}
+function delTR(id) { set('trading', get('trading').filter(t => t.id !== id)); renderTR(); }
+function renderTR() {
+    const data = get('trading');
+    const gross = data.reduce((s,t) => s+t.pnl, 0);
+    const chgs  = data.reduce((s,t) => s+t.chg, 0);
+    const net   = gross - chgs;
+    document.getElementById('trGross').textContent = '₹' + gross.toFixed(2);
+    document.getElementById('trGross').className = 'sv ' + (gross >= 0 ? 'pos' : 'neg');
+    document.getElementById('trNet').textContent  = '₹' + net.toFixed(2);
+    document.getElementById('trNet').className   = 'sv ' + (net >= 0 ? 'pos' : 'neg');
+    document.getElementById('trCnt').textContent  = data.length;
+    document.getElementById('sWPnL').textContent  = '₹' + net.toFixed(2);
+    document.getElementById('sTradeC').textContent = data.length;
+    document.getElementById('pnlDisp').textContent = '₹' + net.toFixed(2);
+    document.getElementById('trBody').innerHTML = data.map(t => {
+        const n = t.pnl - t.chg;
+        return `<tr>
+            <td>${t.date}</td>
+            <td><strong>${t.inst}</strong></td>
+            <td><span class="badge bg-blue">${t.type}</span></td>
+            <td style="font-weight:700;color:${t.pnl>=0?'#16a34a':'#dc2626'};">₹${t.pnl.toFixed(2)}</td>
+            <td style="font-weight:700;color:${n>=0?'#16a34a':'#dc2626'};">₹${n.toFixed(2)}</td>
+            <td><button class="btn-sm" onclick="delTR(${t.id})">✕</button></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:16px;">No trades yet</td></tr>';
+}
+
+// ════════════════════════════════════════
+// TASKS
+// ════════════════════════════════════════
+function addTask() {
+    const txt  = document.getElementById('taskTxt').value.trim();
+    const quad = parseInt(document.getElementById('taskQ').value);
+    if (!txt) { alert('Please enter a task.'); return; }
+    const data = get('tasks');
+    data.push({ id: Date.now(), txt, quad });
+    set('tasks', data);
+    document.getElementById('taskTxt').value = '';
+    renderTasks();
+}
+function delTask(id) { set('tasks', get('tasks').filter(t => t.id !== id)); renderTasks(); }
+function renderTasks() {
+    const data = get('tasks');
+    [1,2,3,4].forEach(q => {
+        const items = data.filter(t => t.quad === q);
+        document.getElementById('quad' + q).innerHTML = items.map(t => `
+            <div class="ti">
+                <span>${t.txt}</span>
+                <button style="border:none;background:none;color:#ef4444;cursor:pointer;font-size:0.7rem;" onclick="delTask(${t.id})">✕</button>
+            </div>
+        `).join('') || '<div style="color:#94a3b8;font-size:0.7rem;padding:4px;">Empty</div>';
+    });
+}
+
+// ════════════════════════════════════════
+// HEALTH
+// ════════════════════════════════════════
+function addHealth() {
+    const date  = document.getElementById('hDate').value;
+    const sugar = parseFloat(document.getElementById('hSugar').value) || null;
+    const walk  = parseInt(document.getElementById('hWalk').value) || 0;
+    const odm   = parseInt(document.getElementById('hODM').value) || 0;
+    const sleep = parseFloat(document.getElementById('hSleep').value) || 0;
+    const notes = document.getElementById('hNotes').value.trim();
+    if (!date) { alert('Please select a date.'); return; }
+    const data = get('health');
+    data.unshift({ id: Date.now(), date, sugar, walk, odm, sleep, notes });
+    set('health', data);
+    ['hDate','hSugar','hWalk','hODM','hSleep','hNotes'].forEach(id => document.getElementById(id).value = '');
+    renderHealth();
+}
+function delHealth(id) { set('health', get('health').filter(h => h.id !== id)); renderHealth(); }
+function renderHealth() {
+    const data = get('health');
+    if (data.length > 0 && data[0].sugar) {
+        document.getElementById('sSugar').textContent = data[0].sugar + '';
+    }
+    document.getElementById('hBody').innerHTML = data.map(h => `
+        <tr>
+            <td>${h.date}</td>
+            <td>${h.sugar ? h.sugar + ' mg/dL' : '—'}</td>
+            <td>${h.walk} min</td>
+            <td>${h.odm} min</td>
+            <td>${h.sleep} hrs</td>
+            <td><button class="btn-sm" onclick="delHealth(${h.id})">✕</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:16px;">No entries yet</td></tr>';
+}
+
+// ════════════════════════════════════════
+// REFLECTIONS
+// ════════════════════════════════════════
+function addRefl() {
+    const txt = document.getElementById('reflText').value.trim();
+    if (!txt) { alert('Please write a reflection.'); return; }
+    const data = get('reflections');
+    data.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), txt });
+    set('reflections', data);
+    document.getElementById('reflText').value = '';
+    alert('Reflection saved ✓');
+}
+
+// ════════════════════════════════════════
+// VIDEOS / LEARNING
+// ════════════════════════════════════════
+function addVideo() {
+    const link = document.getElementById('vidLink').value.trim();
+    const sum  = document.getElementById('vidSum').value.trim();
+    if (!link || !sum) { alert('Please fill all fields.'); return; }
+    const data = get('videos');
+    data.unshift({ id: Date.now(), date: new Date().toLocaleDateString(), link, sum });
+    set('videos', data);
+    ['vidLink','vidSum'].forEach(id => document.getElementById(id).value = '');
+    renderVideos();
+}
+function delVideo(id) { set('videos', get('videos').filter(v => v.id !== id)); renderVideos(); }
+function renderVideos() {
+    const data = get('videos');
+    document.getElementById('vidBody').innerHTML = data.map(v => `
+        <tr>
+            <td>${v.date}</td>
+            <td><a href="${v.link.startsWith('http') ? v.link : '#'}" target="_blank" style="color:#3b82f6;">📹 View</a></td>
+            <td style="font-size:0.7rem;">${v.sum.substring(0,60)}...</td>
+            <td><button class="btn-sm" onclick="delVideo(${v.id})">✕</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:16px;">No learning entries yet</td></tr>';
+}
+
+// ════════════════════════════════════════
+// EXPORT & IMPORT (BACKUP)
+// ════════════════════════════════════════
+function exportData() {
+    const backup = {
+        daily:       get('daily'),
+        finance:     get('finance'),
+        trading:     get('trading'),
+        tasks:       get('tasks'),
+        health:      get('health'),
+        videos:      get('videos'),
+        reflections: get('reflections'),
+    };
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'dashboard_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function importData() {
+    try {
+        const raw = document.getElementById('restoreInput').value.trim();
+        if (!raw) { alert('Please paste your backup JSON first.'); return; }
+        const data = JSON.parse(raw);
+        Object.keys(data).forEach(k => set(k, data[k]));
+        document.getElementById('restoreInput').value = '';
+        renderAll();
+        alert('Data restored successfully ✓');
+    } catch(e) {
+        alert('Invalid JSON. Please check your backup data.');
+    }
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+function renderAll() {
+    renderDL();
+    renderEI();
+    renderTR();
+    renderTasks();
+    renderHealth();
+    renderVideos();
+}
+
+function setToday() {
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    document.getElementById('dayDisp').textContent = days[now.getDay()];
+    document.getElementById('dlDate').valueAsDate  = now;
+    document.getElementById('eiDate').valueAsDate  = now;
+    document.getElementById('trDate').valueAsDate  = now;
+    document.getElementById('hDate').valueAsDate   = now;
+    // Auto-fill day name
+    const dayFull = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    document.getElementById('dlDay').value = dayFull[now.getDay()];
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    setToday();
+    renderAll();
+});
+</script>
+
+</body>
+</html>
